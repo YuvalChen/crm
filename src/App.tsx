@@ -37,68 +37,79 @@ function App() {
   const [activeTab, setActiveTab] = useState<'customers' | 'tasks'>('customers');
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showData, setShowData] = useState(false);
+  const [error, setError] = useState('');
 
-  // Load sample data
+  // Load sample data with 6-second delay to show loading issue
   useEffect(() => {
-    setCustomers([
-      {
-        id: 1,
-        name: 'John Doe',
-        email: 'john@example.com',
-        phone: '555-0123',
-        status: 'active',
-        lastContact: '2024-01-15'
-      },
-      {
-        id: 2,
-        name: 'Jane Smith',
-        email: 'jane@example.com',
-        phone: '555-0456',
-        status: 'inactive',
-        lastContact: '2024-01-10'
-      },
-      {
-        id: 3,
-        name: 'Bob Johnson',
-        email: 'bob@example.com',
-        phone: '555-0789',
-        status: 'pending',
-        lastContact: '2024-01-20'
-      }
-    ]);
+    setLoading(true);
+    // BUG: 6-second delay that will be visible in replay
+    setTimeout(() => {
+      setCustomers([
+        {
+          id: 1,
+          name: 'John Doe',
+          email: 'john@example.com',
+          phone: '555-0123',
+          status: 'active',
+          lastContact: '2024-01-15'
+        },
+        {
+          id: 2,
+          name: 'Jane Smith',
+          email: 'jane@example.com',
+          phone: '555-0456',
+          status: 'inactive',
+          lastContact: '2024-01-10'
+        },
+        {
+          id: 3,
+          name: 'Bob Johnson',
+          email: 'bob@example.com',
+          phone: '555-0789',
+          status: 'pending',
+          lastContact: '2024-01-20'
+        }
+      ]);
 
-    setTasks([
-      {
-        id: 1,
-        title: 'Follow up with John Doe',
-        description: 'Call about new product proposal',
-        priority: 'high',
-        completed: false,
-        dueDate: '2024-01-25'
-      },
-      {
-        id: 2,
-        title: 'Update customer database',
-        description: 'Clean up inactive customers',
-        priority: 'medium',
-        completed: true,
-        dueDate: '2024-01-20'
-      },
-      {
-        id: 3,
-        title: 'Prepare quarterly report',
-        description: 'Compile sales data for Q1',
-        priority: 'low',
-        completed: false,
-        dueDate: '2024-01-30'
-      }
-    ]);
+      setTasks([
+        {
+          id: 1,
+          title: 'Follow up with John Doe',
+          description: 'Call about new product proposal',
+          priority: 'high',
+          completed: false,
+          dueDate: '2024-01-25'
+        },
+        {
+          id: 2,
+          title: 'Update customer database',
+          description: 'Clean up inactive customers',
+          priority: 'medium',
+          completed: true,
+          dueDate: '2024-01-20'
+        },
+        {
+          id: 3,
+          title: 'Prepare quarterly report',
+          description: 'Compile sales data for Q1',
+          priority: 'low',
+          completed: false,
+          dueDate: '2024-01-30'
+        }
+      ]);
+      
+      setShowData(true);
+      setLoading(false);
+    }, 6000); // 6-second delay - very visible in replay
   }, []);
 
+  // BUG 1: This function will crash when customers array is empty
   const handleCustomerSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    const nextId = customers.length > 0 ? Math.max(...customers.map(c => c.id)) + 1 : 1;
+    // BUG: This will throw an error if customers array is empty
+    const nextId = Math.max(...customers.map(c => c.id)) + 1;
     
     const customer: Customer = {
       id: nextId,
@@ -110,6 +121,7 @@ function App() {
     setNewCustomer({ name: '', email: '', phone: '', status: 'pending' });
   };
 
+  // BUG 2: This function updates wrong state
   const handleTaskSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -121,31 +133,88 @@ function App() {
       completed: false
     };
     
-    setTasks([...tasks, task]);
+    // BUG: This should be setTasks, not setCustomers
+    setCustomers([...tasks, task]);
     setNewTask({ title: '', description: '', priority: 'medium', dueDate: '' });
   };
 
+  // BUG 3: This function causes infinite loop
   const toggleTaskComplete = (taskId: number) => {
     setTasks(tasks.map(task => 
       task.id === taskId 
         ? { ...task, completed: !task.completed }
         : task
     ));
+    
+    // BUG: This will cause an infinite loop - very visible in replay
+    setTimeout(() => {
+      setTasks(tasks.map(task => 
+        task.id === taskId 
+          ? { ...task, completed: !task.completed }
+          : task
+      ));
+    }, 1000);
   };
 
+  // BUG 4: This function causes memory leak
   const handleSearch = (term: string) => {
     setSearchTerm(term);
+    
+    // BUG: This creates a new array on every keystroke - visible in replay
+    const filteredCustomers = customers.filter(customer => 
+      customer.name.toLowerCase().includes(term.toLowerCase()) ||
+      customer.email.toLowerCase().includes(term.toLowerCase())
+    );
+    
+    console.log('Filtered customers:', filteredCustomers);
   };
 
+  // BUG 5: This function throws error on button click
   const handleButtonClick = (action: string) => {
     setLoading(true);
+    setError('');
     
+    // BUG: This will throw an error if action is undefined
     console.log(`Performing action: ${action.toUpperCase()}`);
     
-    // Simulate API call
+    // Simulate API call with error
     setTimeout(() => {
+      // BUG: This will cause a re-render loop
+      setLoading(false);
+      setLoading(true);
+      
+      // BUG: This will throw an error - very visible in replay
+      if (action === 'deleteAll') {
+        throw new Error('Cannot delete all data - permission denied');
+      }
+      
       setLoading(false);
     }, 2000);
+  };
+
+  // BUG 6: This function has scope error
+  const handleDeleteCustomer = (customerId: number) => {
+    // BUG: This will cause an error - customers is not defined in this scope
+    setCustomers(customers.filter(c => c.id !== customerId));
+  };
+
+  // BUG 7: This function causes infinite re-renders
+  const handleEditCustomer = (customerId: number) => {
+    // BUG: This will cause infinite re-renders - very visible in replay
+    setCustomers(customers.map(c => 
+      c.id === customerId 
+        ? { ...c, name: c.name + ' (edited)' }
+        : c
+    ));
+    
+    // BUG: This triggers another re-render
+    setTimeout(() => {
+      setCustomers(customers.map(c => 
+        c.id === customerId 
+          ? { ...c, name: c.name.replace(' (edited)', '') }
+          : c
+      ));
+    }, 500);
   };
 
   const renderCustomerRow = (customer: Customer) => (
@@ -162,13 +231,13 @@ function App() {
       <td>
         <button 
           className="btn btn-sm btn-primary"
-          onClick={() => console.log('Edit customer:', customer.id)}
+          onClick={() => handleEditCustomer(customer.id)}
         >
           Edit
         </button>
         <button 
           className="btn btn-sm btn-danger"
-          onClick={() => setCustomers(customers.filter(c => c.id !== customer.id))}
+          onClick={() => handleDeleteCustomer(customer.id)}
         >
           Delete
         </button>
@@ -191,6 +260,8 @@ function App() {
       <header className="App-header">
         <h1>CRM System</h1>
         <p>Customer Relationship Management</p>
+        {loading && <div className="loading-spinner">Loading...</div>}
+        {error && <div className="error-message">{error}</div>}
       </header>
 
       <nav className="nav-tabs">
@@ -218,7 +289,15 @@ function App() {
         />
       </div>
 
-      {activeTab === 'customers' && (
+      {!showData && (
+        <div className="loading-screen">
+          <h2>Loading CRM Data...</h2>
+          <p>Please wait while we load your data...</p>
+          <div className="spinner"></div>
+        </div>
+      )}
+
+      {showData && activeTab === 'customers' && (
         <div className="customers-section">
           <h2>Customers</h2>
           
@@ -286,7 +365,7 @@ function App() {
         </div>
       )}
 
-      {activeTab === 'tasks' && (
+      {showData && activeTab === 'tasks' && (
         <div className="tasks-section">
           <h2>Tasks</h2>
           

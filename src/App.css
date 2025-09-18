@@ -414,13 +414,57 @@
   /* This is already defined above, but missing some specific states */
 }
 
-/* BUG: Missing loading states */
+/* Loading States */
 .loading {
   opacity: 0.6;
   pointer-events: none;
 }
 
-/* BUG: Missing error states */
+.loading-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin: 20px 0;
+}
+
+.loading-screen h2 {
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.loading-screen p {
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-spinner {
+  background: #007bff;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 4px;
+  margin: 10px 0;
+  display: inline-block;
+}
+
+/* Error States */
 .error {
   border-color: #dc3545 !important;
   background-color: #f8d7da;
@@ -428,8 +472,13 @@
 
 .error-message {
   color: #dc3545;
-  font-size: 0.9rem;
-  margin-top: 5px;
+  font-size: 1rem;
+  margin: 10px 0;
+  padding: 10px 15px;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  display: inline-block;
 }
 
 /* BUG: Missing success states */

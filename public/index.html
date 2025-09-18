@@ -24,7 +24,26 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
-    <title>React App</title>
+    <title>CRM System</title>
+    <script>
+      window.sentryOnLoad = function () {
+        Sentry.init({
+          integrations: [
+            Sentry.browserTracingIntegration(),
+            Sentry.replayIntegration({
+              maskAllText: false,
+              blockAllMedia: false,
+              maskAllInputs: true
+            })
+          ],
+          replaysSessionSampleRate: 1.0,
+          replaysOnErrorSampleRate: 1.0,
+          tracesSampleRate: 1.0
+        })
+      }
+    </script>
+    <!-- Vigilo Sentry Integration -->
+    <script src="https://js-de.sentry-cdn.com/e2db2e02e66a99fecd971c40f9ed6160.min.js" crossorigin="anonymous"></script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
