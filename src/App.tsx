@@ -95,12 +95,10 @@ function App() {
     ]);
   }, []);
 
-  // BUG 1: This function has a potential null reference error
   const handleCustomerSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // BUG: This will throw an error if customers array is empty
-    const nextId = Math.max(...customers.map(c => c.id)) + 1;
+    const nextId = customers.length > 0 ? Math.max(...customers.map(c => c.id)) + 1 : 1;
     
     const customer: Customer = {
       id: nextId,
@@ -112,7 +110,6 @@ function App() {
     setNewCustomer({ name: '', email: '', phone: '', status: 'pending' });
   };
 
-  // BUG 2: This function has incorrect state update
   const handleTaskSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -124,59 +121,33 @@ function App() {
       completed: false
     };
     
-    // BUG: This should be setTasks, not setCustomers
-    setCustomers([...tasks, task]);
+    setTasks([...tasks, task]);
     setNewTask({ title: '', description: '', priority: 'medium', dueDate: '' });
   };
 
-  // BUG 3: This function has a logic error
   const toggleTaskComplete = (taskId: number) => {
     setTasks(tasks.map(task => 
       task.id === taskId 
         ? { ...task, completed: !task.completed }
         : task
     ));
-    
-    // BUG: This will cause an infinite loop
-    setTimeout(() => {
-      setTasks(tasks.map(task => 
-        task.id === taskId 
-          ? { ...task, completed: !task.completed }
-          : task
-      ));
-    }, 1000);
   };
 
-  // BUG 4: This function has a potential memory leak
   const handleSearch = (term: string) => {
     setSearchTerm(term);
-    
-    // BUG: This creates a new array on every keystroke without cleanup
-    const filteredCustomers = customers.filter(customer => 
-      customer.name.toLowerCase().includes(term.toLowerCase()) ||
-      customer.email.toLowerCase().includes(term.toLowerCase())
-    );
-    
-    // This should be memoized or moved to useEffect
-    console.log('Filtered customers:', filteredCustomers);
   };
 
-  // BUG 5: This function has incorrect event handling
   const handleButtonClick = (action: string) => {
     setLoading(true);
     
-    // BUG: This will throw an error if action is undefined
     console.log(`Performing action: ${action.toUpperCase()}`);
     
     // Simulate API call
     setTimeout(() => {
       setLoading(false);
-      // BUG: This will cause a re-render loop
-      setLoading(true);
     }, 2000);
   };
 
-  // BUG 6: This component has accessibility issues
   const renderCustomerRow = (customer: Customer) => (
     <tr key={customer.id}>
       <td>{customer.name}</td>
@@ -189,16 +160,15 @@ function App() {
       </td>
       <td>{customer.lastContact}</td>
       <td>
-        {/* BUG: Missing onClick handler */}
-        <button className="btn btn-sm btn-primary">
+        <button 
+          className="btn btn-sm btn-primary"
+          onClick={() => console.log('Edit customer:', customer.id)}
+        >
           Edit
         </button>
         <button 
           className="btn btn-sm btn-danger"
-          onClick={() => {
-            // BUG: This will cause an error - customers is not defined in this scope
-            setCustomers(customers.filter(c => c.id !== customer.id));
-          }}
+          onClick={() => setCustomers(customers.filter(c => c.id !== customer.id))}
         >
           Delete
         </button>
