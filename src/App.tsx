@@ -39,11 +39,25 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [showData, setShowData] = useState(false);
   const [error, setError] = useState('');
+  const [loadingProgress, setLoadingProgress] = useState(0);
 
   // Load sample data with 6-second delay to show loading issue
   useEffect(() => {
     setLoading(true);
+    setLoadingProgress(0);
+    
     // BUG: 6-second delay that will be visible in replay
+    // Simulate progress updates
+    const progressInterval = setInterval(() => {
+      setLoadingProgress(prev => {
+        if (prev >= 90) {
+          clearInterval(progressInterval);
+          return prev;
+        }
+        return prev + 15;
+      });
+    }, 1000);
+    
     setTimeout(() => {
       setCustomers([
         {
@@ -99,6 +113,7 @@ function App() {
         }
       ]);
       
+      setLoadingProgress(100);
       setShowData(true);
       setLoading(false);
     }, 6000); // 6-second delay - very visible in replay
@@ -264,6 +279,24 @@ function App() {
         {error && <div className="error-message">{error}</div>}
       </header>
 
+      {!showData && (
+        <div className="loading-screen">
+          <h2>Loading CRM Data...</h2>
+          <p>Please wait while we load your data...</p>
+          <div className="spinner"></div>
+          <div className="progress-container">
+            <div className="progress-bar">
+              <div 
+                className="progress-fill" 
+                style={{ width: `${loadingProgress}%` }}
+              ></div>
+            </div>
+            <p className="progress-text">{loadingProgress}% Complete</p>
+          </div>
+          <p className="loading-text">This may take a few moments...</p>
+        </div>
+      )}
+
       <nav className="nav-tabs">
         <button 
           className={`tab ${activeTab === 'customers' ? 'active' : ''}`}
@@ -288,14 +321,6 @@ function App() {
           className="search-input"
         />
       </div>
-
-      {!showData && (
-        <div className="loading-screen">
-          <h2>Loading CRM Data...</h2>
-          <p>Please wait while we load your data...</p>
-          <div className="spinner"></div>
-        </div>
-      )}
 
       {showData && activeTab === 'customers' && (
         <div className="customers-section">
