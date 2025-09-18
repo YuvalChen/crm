@@ -119,12 +119,18 @@ function App() {
     }, 6000); // 6-second delay - very visible in replay
   }, []);
 
-  // BUG 1: This function will crash when customers array is empty
   const handleCustomerSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // BUG: This will throw an error if customers array is empty
-    const nextId = Math.max(...customers.map(c => c.id)) + 1;
+    // Show error message when Add Customer is clicked
+    setError('Error: Failed to add customer. Please try again.');
+    
+    // Clear error after 3 seconds
+    setTimeout(() => {
+      setError('');
+    }, 3000);
+    
+    const nextId = customers.length > 0 ? Math.max(...customers.map(c => c.id)) + 1 : 1;
     
     const customer: Customer = {
       id: nextId,
@@ -148,88 +154,47 @@ function App() {
       completed: false
     };
     
-    // BUG: This should be setTasks, not setCustomers
-    setCustomers([...tasks, task]);
+    setTasks([...tasks, task]);
     setNewTask({ title: '', description: '', priority: 'medium', dueDate: '' });
   };
 
-  // BUG 3: This function causes infinite loop
   const toggleTaskComplete = (taskId: number) => {
     setTasks(tasks.map(task => 
       task.id === taskId 
         ? { ...task, completed: !task.completed }
         : task
     ));
-    
-    // BUG: This will cause an infinite loop - very visible in replay
-    setTimeout(() => {
-      setTasks(tasks.map(task => 
-        task.id === taskId 
-          ? { ...task, completed: !task.completed }
-          : task
-      ));
-    }, 1000);
   };
 
-  // BUG 4: This function causes memory leak
   const handleSearch = (term: string) => {
     setSearchTerm(term);
-    
-    // BUG: This creates a new array on every keystroke - visible in replay
-    const filteredCustomers = customers.filter(customer => 
-      customer.name.toLowerCase().includes(term.toLowerCase()) ||
-      customer.email.toLowerCase().includes(term.toLowerCase())
-    );
-    
-    console.log('Filtered customers:', filteredCustomers);
   };
 
-  // BUG 5: This function throws error on button click
   const handleButtonClick = (action: string) => {
     setLoading(true);
     setError('');
     
-    // BUG: This will throw an error if action is undefined
     console.log(`Performing action: ${action.toUpperCase()}`);
     
-    // Simulate API call with error
+    // Simulate API call
     setTimeout(() => {
-      // BUG: This will cause a re-render loop
-      setLoading(false);
-      setLoading(true);
-      
-      // BUG: This will throw an error - very visible in replay
       if (action === 'deleteAll') {
-        throw new Error('Cannot delete all data - permission denied');
+        setError('Cannot delete all data - permission denied');
       }
-      
       setLoading(false);
     }, 2000);
   };
 
-  // BUG 6: This function has scope error
   const handleDeleteCustomer = (customerId: number) => {
-    // BUG: This will cause an error - customers is not defined in this scope
     setCustomers(customers.filter(c => c.id !== customerId));
   };
 
-  // BUG 7: This function causes infinite re-renders
   const handleEditCustomer = (customerId: number) => {
-    // BUG: This will cause infinite re-renders - very visible in replay
     setCustomers(customers.map(c => 
       c.id === customerId 
         ? { ...c, name: c.name + ' (edited)' }
         : c
     ));
-    
-    // BUG: This triggers another re-render
-    setTimeout(() => {
-      setCustomers(customers.map(c => 
-        c.id === customerId 
-          ? { ...c, name: c.name.replace(' (edited)', '') }
-          : c
-      ));
-    }, 500);
   };
 
   const renderCustomerRow = (customer: Customer) => (
