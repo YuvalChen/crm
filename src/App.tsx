@@ -119,27 +119,43 @@ function App() {
     }, 6000); // 6-second delay - very visible in replay
   }, []);
 
-  const handleCustomerSubmit = (e: React.FormEvent) => {
+  const handleCustomerSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Show error message when Add Customer is clicked
-    setError('Error: Failed to add customer. Please try again.');
+    // Simulate API call
+    try {
+      // Here, you would typically make an API call to your backend to create the customer.
+      // For now, we simulate a successful API response with a 201 status code.
+      const response = await new Promise((resolve) => {
+        setTimeout(() => {
+          resolve({ status: 201 });
+        }, 1000);
+      });
+
+      if (response.status >= 200 && response.status < 300) {
+        const nextId = customers.length > 0 ? Math.max(...customers.map(c => c.id)) + 1 : 1;
     
-    // Clear error after 3 seconds
-    setTimeout(() => {
-      setError('');
-    }, 3000);
-    
-    const nextId = customers.length > 0 ? Math.max(...customers.map(c => c.id)) + 1 : 1;
-    
-    const customer: Customer = {
-      id: nextId,
-      ...newCustomer,
-      lastContact: new Date().toISOString().split('T')[0]
-    };
-    
-    setCustomers([...customers, customer]);
-    setNewCustomer({ name: '', email: '', phone: '', status: 'pending' });
+        const customer: Customer = {
+          id: nextId,
+          ...newCustomer,
+          lastContact: new Date().toISOString().split('T')[0]
+        };
+        
+        setCustomers([...customers, customer]);
+        setNewCustomer({ name: '', email: '', phone: '', status: 'pending' });
+        setError(''); // Clear any previous error messages
+      } else {
+        setError('Error: Failed to add customer. Please try again.');
+        setTimeout(() => {
+          setError('');
+        }, 3000);
+      }
+    } catch (err) {
+      setError('Error: Failed to add customer. Please try again.');
+      setTimeout(() => {
+        setError('');
+      }, 3000);
+    }
   };
 
   // BUG 2: This function updates wrong state
