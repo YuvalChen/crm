@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
+import axios from 'axios';
 
 interface Customer {
   id: number;
@@ -119,27 +120,27 @@ function App() {
     }, 6000); // 6-second delay - very visible in replay
   }, []);
 
-  const handleCustomerSubmit = (e: React.FormEvent) => {
+  const handleCustomerSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Show error message when Add Customer is clicked
-    setError('Error: Failed to add customer. Please try again.');
-    
-    // Clear error after 3 seconds
-    setTimeout(() => {
-      setError('');
-    }, 3000);
-    
-    const nextId = customers.length > 0 ? Math.max(...customers.map(c => c.id)) + 1 : 1;
-    
-    const customer: Customer = {
-      id: nextId,
-      ...newCustomer,
-      lastContact: new Date().toISOString().split('T')[0]
-    };
-    
-    setCustomers([...customers, customer]);
-    setNewCustomer({ name: '', email: '', phone: '', status: 'pending' });
+    try {
+      const response = await axios.post('/api/customers', newCustomer);
+      if (response.status === 201) {
+        // Assuming the API returns the new customer with an ID
+        const newCustomerWithId = response.data;
+        setCustomers([...customers, newCustomerWithId]);
+        setNewCustomer({ name: '', email: '', phone: '', status: 'pending' });
+        setError(''); // Clear any previous errors
+      } else {
+        setError(`Error: Failed to add customer. Status code: ${response.status}`);
+        // Optionally log the error for debugging
+        console.error("Failed to add customer", response);
+      }
+    } catch (error: any) {
+      setError(`Error: Failed to add customer. ${error.message}`);
+      // Optionally log the error for debugging
+      console.error("Failed to add customer", error);
+    }
   };
 
   // BUG 2: This function updates wrong state
