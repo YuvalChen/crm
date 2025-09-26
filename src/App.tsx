@@ -123,6 +123,7 @@ function App() {
     e.preventDefault();
     
     // Show error message when Add Customer is clicked
+    // Triggering deployment test
     setError('Error: Failed to add customer. Please try again.');
     
     // Clear error after 3 seconds
