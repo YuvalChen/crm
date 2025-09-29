@@ -124,12 +124,18 @@ function App() {
     
     // Show error message when Add Customer is clicked
     // Testing deployment with correct Vercel IDs
-    setError('Error: Failed to add customer. Please try again.');
-    
-    // Clear error after 3 seconds
-    setTimeout(() => {
-      setError('');
-    }, 3000);
+    // Simulate API error with a more descriptive message (replace with actual API call)
+    const apiResponse = { success: false, message: 'Email already exists' };
+
+    if (!apiResponse.success) {
+      setError(apiResponse.message || 'Error: Failed to add customer. Please try again.');
+
+      // Clear error after 3 seconds
+      setTimeout(() => {
+        setError('');
+      }, 3000);
+      return;
+    }
     
     const nextId = customers.length > 0 ? Math.max(...customers.map(c => c.id)) + 1 : 1;
     
