@@ -56,9 +56,12 @@ function App() {
         }
         return prev + 15;
       });
-    }, 1000);
+    }, 100);
     
-    setTimeout(() => {
+    // Simulated Data Fetch
+    const fetchData = async () => {
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network request
+
       setCustomers([
         {
           id: 1,
@@ -116,7 +119,9 @@ function App() {
       setLoadingProgress(100);
       setShowData(true);
       setLoading(false);
-    }, 6000); // 6-second delay - very visible in replay
+    };
+
+    fetchData();
   }, []);
 
   const handleCustomerSubmit = (e: React.FormEvent) => {
