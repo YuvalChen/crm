@@ -40,6 +40,7 @@ function App() {
   const [showData, setShowData] = useState(false);
   const [error, setError] = useState('');
   const [loadingProgress, setLoadingProgress] = useState(0);
+  const [customerDataLoaded, setCustomerDataLoaded] = useState(false);
 
   // Load sample data with 6-second delay to show loading issue
   useEffect(() => {
@@ -116,6 +117,7 @@ function App() {
       setLoadingProgress(100);
       setShowData(true);
       setLoading(false);
+      setCustomerDataLoaded(true);
     }, 6000); // 6-second delay - very visible in replay
   }, []);
 
@@ -433,23 +435,23 @@ function App() {
         <button 
           className="btn btn-primary"
           onClick={() => handleButtonClick('export')}
-          disabled={loading}
+          disabled={loading && !customerDataLoaded}
         >
-          {loading ? 'Loading...' : 'Export Data'}
+          {loading && !customerDataLoaded ? 'Loading...' : 'Export Data'}
         </button>
         <button 
           className="btn btn-secondary"
           onClick={() => handleButtonClick('import')}
-          disabled={loading}
+          disabled={loading && !customerDataLoaded}
         >
-          {loading ? 'Loading...' : 'Import Data'}
+          {loading && !customerDataLoaded ? 'Loading...' : 'Import Data'}
         </button>
         <button 
           className="btn btn-danger"
           onClick={() => handleButtonClick('deleteAll')}
-          disabled={loading}
+          disabled={loading && !customerDataLoaded}
         >
-          {loading ? 'Loading...' : 'Delete All Data'}
+          {loading && !customerDataLoaded ? 'Loading...' : 'Delete All Data'}
         </button>
       </div>
     </div>
