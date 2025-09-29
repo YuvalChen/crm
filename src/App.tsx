@@ -119,28 +119,38 @@ function App() {
     }, 6000); // 6-second delay - very visible in replay
   }, []);
 
-  const handleCustomerSubmit = (e: React.FormEvent) => {
+  const handleCustomerSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Show error message when Add Customer is clicked
-    // Testing deployment with correct Vercel IDs
-    setError('Error: Failed to add customer. Please try again.');
-    
-    // Clear error after 3 seconds
-    setTimeout(() => {
-      setError('');
-    }, 3000);
-    
-    const nextId = customers.length > 0 ? Math.max(...customers.map(c => c.id)) + 1 : 1;
-    
-    const customer: Customer = {
-      id: nextId,
-      ...newCustomer,
-      lastContact: new Date().toISOString().split('T')[0]
-    };
-    
-    setCustomers([...customers, customer]);
-    setNewCustomer({ name: '', email: '', phone: '', status: 'pending' });
+    // Simulate API call with a timeout to show error
+    try {
+      // Replace this with your actual API call
+      await new Promise((_, reject) => setTimeout(() => {
+        // Simulate a server-side validation error
+        reject(new Error('Email already exists'));
+      }, 1000));
+      
+      const nextId = customers.length > 0 ? Math.max(...customers.map(c => c.id)) + 1 : 1;
+      
+      const customer: Customer = {
+        id: nextId,
+        ...newCustomer,
+        lastContact: new Date().toISOString().split('T')[0]
+      };
+      
+      setCustomers([...customers, customer]);
+      setNewCustomer({ name: '', email: '', phone: '', status: 'pending' });
+      setError(''); // Clear any previous errors upon success
+      
+    } catch (error: any) {
+      // Display specific error message from API if available
+      setError(error.message || 'Error: Failed to add customer. Please try again.');
+      
+      // Clear error after 3 seconds
+      setTimeout(() => {
+        setError('');
+      }, 3000);
+    }
   };
 
   // BUG 2: This function updates wrong state
