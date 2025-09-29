@@ -119,17 +119,41 @@ function App() {
     }, 6000); // 6-second delay - very visible in replay
   }, []);
 
-  const handleCustomerSubmit = (e: React.FormEvent) => {
+  const handleCustomerSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Show error message when Add Customer is clicked
-    // Testing deployment with correct Vercel IDs
-    setError('Error: Failed to add customer. Please try again.');
-    
-    // Clear error after 3 seconds
-    setTimeout(() => {
-      setError('');
-    }, 3000);
+    // Simulate API call - replace with actual API call later
+    try {
+      // Simulate API error response
+      const response = await new Promise((resolve, reject) => {
+        setTimeout(() => {
+          reject({ code: 'EMAIL_EXISTS', message: 'Email address already exists.' });
+        }, 1000);
+      });
+
+      // Actual API call would look something like this:
+      // const response = await fetch('/api/customers', { method: 'POST', body: JSON.stringify(newCustomer) });
+
+      // if (!response.ok) {
+      //   const errorData = await response.json();
+      //   throw new Error(errorData.message || 'Failed to add customer');
+      // }
+
+      // const newCustomerData = await response.json();
+
+      // Instead of setting the state directly, handle the error
+    } catch (error: any) {
+      // Use error handling to set specific errors
+      const errorMessage = getErrorMessage(error.code || 'DEFAULT_ERROR');
+      setError(errorMessage || 'Error: Failed to add customer. Please try again.');
+
+      // Clear error after 3 seconds
+      setTimeout(() => {
+        setError('');
+      }, 3000);
+
+      return;
+    }
     
     const nextId = customers.length > 0 ? Math.max(...customers.map(c => c.id)) + 1 : 1;
     
@@ -457,3 +481,17 @@ function App() {
 }
 
 export default App;
+
+// Error handling function
+const getErrorMessage = (code: string) => {
+  switch (code) {
+    case 'EMAIL_EXISTS':
+      return 'Error: This email address is already registered.';
+    case 'PHONE_EXISTS':
+      return 'Error: This phone number is already registered.';
+    case 'INVALID_INPUT':
+      return 'Error: Invalid input. Please check the fields.';
+    default:
+      return 'Error: Failed to add customer. Please try again.';
+  }
+};
