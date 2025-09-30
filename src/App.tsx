@@ -40,6 +40,7 @@ function App() {
   const [showData, setShowData] = useState(false);
   const [error, setError] = useState('');
   const [loadingProgress, setLoadingProgress] = useState(0);
+  const [statuses, setStatuses] = useState<string[]>([]);
 
   // Load sample data with 6-second delay to show loading issue
   useEffect(() => {
@@ -112,6 +113,9 @@ function App() {
           dueDate: '2024-01-30'
         }
       ]);
+
+      // Simulate fetching statuses from an API
+      setStatuses(['active', 'inactive', 'pending']);
       
       setLoadingProgress(100);
       setShowData(true);
@@ -326,9 +330,9 @@ function App() {
                 value={newCustomer.status}
                 onChange={(e) => setNewCustomer({...newCustomer, status: e.target.value as any})}
               >
-                <option value="pending">Pending</option>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
+                {statuses.map(status => (
+                  <option key={status} value={status}>{status}</option>
+                ))}
               </select>
             </div>
             <button type="submit" className="btn btn-primary">
