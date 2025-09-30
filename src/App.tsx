@@ -116,7 +116,7 @@ function App() {
       setLoadingProgress(100);
       setShowData(true);
       setLoading(false);
-    }, 6000); // 6-second delay - very visible in replay
+    }, 0); // 6-second delay - very visible in replay
   }, []);
 
   const handleCustomerSubmit = (e: React.FormEvent) => {
