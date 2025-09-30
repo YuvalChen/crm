@@ -122,6 +122,9 @@ function App() {
   const handleCustomerSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Clear any existing errors
+    setError('');
+    
     // Show error message when Add Customer is clicked
     // Testing deployment with correct Vercel IDs
     setError('Error: Failed to add customer. Please try again.');
