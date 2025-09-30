@@ -58,7 +58,13 @@ function App() {
       });
     }, 1000);
     
+    // Moved data loading to a separate function and called it after a minimal delay
     setTimeout(() => {
+      loadInitialData();
+    }, 100); // Reduced delay to 100ms
+  }, []);
+
+  const loadInitialData = () => {
       setCustomers([
         {
           id: 1,
@@ -116,8 +122,7 @@ function App() {
       setLoadingProgress(100);
       setShowData(true);
       setLoading(false);
-    }, 6000); // 6-second delay - very visible in replay
-  }, []);
+  };
 
   const handleCustomerSubmit = (e: React.FormEvent) => {
     e.preventDefault();
