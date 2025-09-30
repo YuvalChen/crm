@@ -59,63 +59,66 @@ function App() {
     }, 1000);
     
     setTimeout(() => {
-      setCustomers([
-        {
-          id: 1,
-          name: 'John Doe',
-          email: 'john@example.com',
-          phone: '555-0123',
-          status: 'active',
-          lastContact: '2024-01-15'
-        },
-        {
-          id: 2,
-          name: 'Jane Smith',
-          email: 'jane@example.com',
-          phone: '555-0456',
-          status: 'inactive',
-          lastContact: '2024-01-10'
-        },
-        {
-          id: 3,
-          name: 'Bob Johnson',
-          email: 'bob@example.com',
-          phone: '555-0789',
-          status: 'pending',
-          lastContact: '2024-01-20'
-        }
-      ]);
+      // Delay data loading by 500ms to improve initial load
+      setTimeout(() => {
+        setCustomers([
+          {
+            id: 1,
+            name: 'John Doe',
+            email: 'john@example.com',
+            phone: '555-0123',
+            status: 'active',
+            lastContact: '2024-01-15'
+          },
+          {
+            id: 2,
+            name: 'Jane Smith',
+            email: 'jane@example.com',
+            phone: '555-0456',
+            status: 'inactive',
+            lastContact: '2024-01-10'
+          },
+          {
+            id: 3,
+            name: 'Bob Johnson',
+            email: 'bob@example.com',
+            phone: '555-0789',
+            status: 'pending',
+            lastContact: '2024-01-20'
+          }
+        ]);
 
-      setTasks([
-        {
-          id: 1,
-          title: 'Follow up with John Doe',
-          description: 'Call about new product proposal',
-          priority: 'high',
-          completed: false,
-          dueDate: '2024-01-25'
-        },
-        {
-          id: 2,
-          title: 'Update customer database',
-          description: 'Clean up inactive customers',
-          priority: 'medium',
-          completed: true,
-          dueDate: '2024-01-20'
-        },
-        {
-          id: 3,
-          title: 'Prepare quarterly report',
-          description: 'Compile sales data for Q1',
-          priority: 'low',
-          completed: false,
-          dueDate: '2024-01-30'
-        }
-      ]);
-      
-      setLoadingProgress(100);
-      setShowData(true);
-      setLoading(false);
+        setTasks([
+          {
+            id: 1,
+            title: 'Follow up with John Doe',
+            description: 'Call about new product proposal',
+            priority: 'high',
+            completed: false,
+            dueDate: '2024-01-25'
+          },
+          {
+            id: 2,
+            title: 'Update customer database',
+            description: 'Clean up inactive customers',
+            priority: 'medium',
+            completed: true,
+            dueDate: '2024-01-20'
+          },
+          {
+            id: 3,
+            title: 'Prepare quarterly report',
+            description: 'Compile sales data for Q1',
+            priority: 'low',
+            completed: false,
+            dueDate: '2024-01-30'
+          }
+        ]);
+        
+        setLoadingProgress(100);
+        setShowData(true);
+        setLoading(false);
+      }, 500); // 500ms delay
     }, 6000); // 6-second delay - very visible in replay
   }, []);
 
