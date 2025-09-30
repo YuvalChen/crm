@@ -285,6 +285,7 @@ function App() {
           value={searchTerm}
           onChange={(e) => handleSearch(e.target.value)}
           className="search-input"
+          name="search"
         />
       </div>
 
