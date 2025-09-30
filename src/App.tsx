@@ -40,6 +40,7 @@ function App() {
   const [showData, setShowData] = useState(false);
   const [error, setError] = useState('');
   const [loadingProgress, setLoadingProgress] = useState(0);
+  const [emailError, setEmailError] = useState('');
 
   // Load sample data with 6-second delay to show loading issue
   useEffect(() => {
@@ -121,7 +122,13 @@ function App() {
 
   const handleCustomerSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
+    // Check if email already exists
+    if (customers.some(customer => customer.email === newCustomer.email)) {
+      setEmailError('Email already exists.');
+      return;
+    }
+
     // Show error message when Add Customer is clicked
     // Testing deployment with correct Vercel IDs
     setError('Error: Failed to add customer. Please try again.');
@@ -141,6 +148,7 @@ function App() {
     
     setCustomers([...customers, customer]);
     setNewCustomer({ name: '', email: '', phone: '', status: 'pending' });
+    setEmailError('');
   };
 
   // BUG 2: This function updates wrong state
@@ -311,6 +319,7 @@ function App() {
                 onChange={(e) => setNewCustomer({...newCustomer, email: e.target.value})}
                 required
               />
+              {emailError && <div className="error-message">{emailError}</div>}
             </div>
             <div className="form-group">
               <input
