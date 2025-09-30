@@ -1,0 +1,8 @@
+# Run lint-staged to check staged files
+npx lint-staged
+
+# Run build to ensure the app compiles
+echo "🔨 Running build check..."
+npm run build
+
+echo "✅ Pre-commit checks passed!"

@@ -1,0 +1,16 @@
+# Run full build and test before pushing
+echo "🚀 Running pre-push checks..."
+
+# Type check
+echo "🔍 Running TypeScript check..."
+npx tsc --noEmit
+
+# Build check
+echo "🔨 Running build check..."
+npm run build
+
+# Test check (if tests exist)
+echo "🧪 Running tests..."
+npm test -- --watchAll=false
+
+echo "✅ Pre-push checks passed! Safe to push."
