@@ -116,7 +116,7 @@ function App() {
       setLoadingProgress(100);
       setShowData(true);
       setLoading(false);
-    }, 6000); // 6-second delay - very visible in replay
+    }, 100); // Reduced delay to 0.1 seconds
   }, []);
 
   const handleCustomerSubmit = (e: React.FormEvent) => {
@@ -433,21 +433,21 @@ function App() {
         <button 
           className="btn btn-primary"
           onClick={() => handleButtonClick('export')}
-          disabled={loading}
+          disabled={loading && showData}
         >
           {loading ? 'Loading...' : 'Export Data'}
         </button>
         <button 
           className="btn btn-secondary"
           onClick={() => handleButtonClick('import')}
-          disabled={loading}
+          disabled={loading && showData}
         >
           {loading ? 'Loading...' : 'Import Data'}
         </button>
         <button 
           className="btn btn-danger"
           onClick={() => handleButtonClick('deleteAll')}
-          disabled={loading}
+          disabled={loading && showData}
         >
           {loading ? 'Loading...' : 'Delete All Data'}
         </button>
