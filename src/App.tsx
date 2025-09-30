@@ -43,6 +43,13 @@ function App() {
 
   // Load sample data with 6-second delay to show loading issue
   useEffect(() => {
+    const loadingFlag = localStorage.getItem('loadingComplete');
+    if (loadingFlag === 'true') {
+      setShowData(true);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     setLoadingProgress(0);
     
@@ -116,7 +123,12 @@ function App() {
       setLoadingProgress(100);
       setShowData(true);
       setLoading(false);
+      localStorage.setItem('loadingComplete', 'true');
     }, 6000); // 6-second delay - very visible in replay
+
+    return () => {
+        localStorage.removeItem('loadingComplete');
+    };
   }, []);
 
   const handleCustomerSubmit = (e: React.FormEvent) => {
