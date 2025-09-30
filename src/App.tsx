@@ -121,15 +121,23 @@ function App() {
 
   const handleCustomerSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (customers.some(customer => customer.email === newCustomer.email)) {
+      setError('Error: Email already exists. Please use a different email.');
+      setTimeout(() => {
+        setError('');
+      }, 3000);
+      return;
+    }
     
     // Show error message when Add Customer is clicked
     // Testing deployment with correct Vercel IDs
-    setError('Error: Failed to add customer. Please try again.');
+    //setError('Error: Failed to add customer. Please try again.');
     
     // Clear error after 3 seconds
-    setTimeout(() => {
-      setError('');
-    }, 3000);
+    // setTimeout(() => {
+    //   setError('');
+    // }, 3000);
     
     const nextId = customers.length > 0 ? Math.max(...customers.map(c => c.id)) + 1 : 1;
     
