@@ -8,9 +8,7 @@ interface Customer {
   phone: string;
   status: 'active' | 'inactive' | 'pending';
   lastContact: string;
-  // BUG: Added optional field that's sometimes undefined
   notes?: string;
-  // BUG: Wrong type - should be string but using number
   age: number;
 }
 
@@ -21,32 +19,28 @@ interface Task {
   priority: 'high' | 'medium' | 'low';
   completed: boolean;
   dueDate: string;
-  // BUG: Added field that doesn't match the interface usage
-  assignedTo: Customer;
-  // BUG: Wrong type - should be boolean
-  isUrgent: string;
+  assignedTo: string;
+  isUrgent: boolean;
 }
 
 function App() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
-  // BUG: Missing required fields from Customer interface
   const [newCustomer, setNewCustomer] = useState({
     name: '',
     email: '',
     phone: '',
-    status: 'pending' as const
-    // BUG: Missing age field that's required
+    status: 'pending' as const,
+    age: 0,
+    notes: ''
   });
   const [newTask, setNewTask] = useState({
     title: '',
     description: '',
     priority: 'medium' as const,
     dueDate: '',
-    // BUG: Wrong type - should be Customer object
-    assignedTo: 'John Doe',
-    // BUG: Wrong type - should be boolean
-    isUrgent: 'yes'
+    assignedTo: '',
+    isUrgent: false
   });
   const [activeTab, setActiveTab] = useState<'customers' | 'tasks'>('customers');
   const [searchTerm, setSearchTerm] = useState('');
@@ -73,7 +67,6 @@ function App() {
     }, 1000);
     
     setTimeout(() => {
-      // BUG: Missing required fields from Customer interface
       setCustomers([
         {
           id: 1,
@@ -81,8 +74,9 @@ function App() {
           email: 'john@example.com',
           phone: '555-0123',
           status: 'active',
-          lastContact: '2024-01-15'
-          // BUG: Missing age field that's required
+          lastContact: '2024-01-15',
+          age: 30,
+          notes: 'VIP customer'
         },
         {
           id: 2,
@@ -90,8 +84,9 @@ function App() {
           email: 'jane@example.com',
           phone: '555-0456',
           status: 'inactive',
-          lastContact: '2024-01-10'
-          // BUG: Missing age field that's required
+          lastContact: '2024-01-10',
+          age: 25,
+          notes: 'Former customer'
         },
         {
           id: 3,
@@ -99,12 +94,12 @@ function App() {
           email: 'bob@example.com',
           phone: '555-0789',
           status: 'pending',
-          lastContact: '2024-01-20'
-          // BUG: Missing age field that's required
+          lastContact: '2024-01-20',
+          age: 35,
+          notes: 'New lead'
         }
       ]);
 
-      // BUG: Missing required fields from Task interface
       setTasks([
         {
           id: 1,
@@ -112,8 +107,9 @@ function App() {
           description: 'Call about new product proposal',
           priority: 'high',
           completed: false,
-          dueDate: '2024-01-25'
-          // BUG: Missing assignedTo and isUrgent fields
+          dueDate: '2024-01-25',
+          assignedTo: 'John Doe',
+          isUrgent: true
         },
         {
           id: 2,
@@ -121,8 +117,9 @@ function App() {
           description: 'Clean up inactive customers',
           priority: 'medium',
           completed: true,
-          dueDate: '2024-01-20'
-          // BUG: Missing assignedTo and isUrgent fields
+          dueDate: '2024-01-20',
+          assignedTo: 'Jane Smith',
+          isUrgent: false
         },
         {
           id: 3,
@@ -130,8 +127,9 @@ function App() {
           description: 'Compile sales data for Q1',
           priority: 'low',
           completed: false,
-          dueDate: '2024-01-30'
-          // BUG: Missing assignedTo and isUrgent fields
+          dueDate: '2024-01-30',
+          assignedTo: 'Bob Johnson',
+          isUrgent: false
         }
       ]);
       
@@ -166,18 +164,15 @@ function App() {
     // BUG: This will crash if customers array is empty
     const nextId = Math.max(...customers.map(c => c.id)) + 1;
     
-    // BUG: Missing required fields, wrong types
     const customer: Customer = {
       id: nextId,
       ...newCustomer,
-      lastContact: new Date().toISOString().split('T')[0],
-      // BUG: age is required but not provided
-      age: '25' // BUG: Wrong type - should be number
+      lastContact: new Date().toISOString().split('T')[0]
     };
     
     // BUG: This will cause state update on unmounted component
     setCustomers([...customers, customer]);
-    setNewCustomer({ name: '', email: '', phone: '', status: 'pending' });
+    setNewCustomer({ name: '', email: '', phone: '', status: 'pending', age: 0, notes: '' });
     
     // BUG: This will cause infinite loop
     setTimeout(() => {
@@ -192,20 +187,15 @@ function App() {
     // BUG: This will crash if tasks array is empty
     const nextId = Math.max(...tasks.map(t => t.id)) + 1;
     
-    // BUG: Wrong types, missing required fields
     const task: Task = {
       id: nextId,
       ...newTask,
-      completed: false,
-      // BUG: assignedTo should be Customer object, not string
-      assignedTo: newCustomer, // BUG: Wrong type
-      // BUG: isUrgent should be boolean, not string
-      isUrgent: 'true' // BUG: Wrong type
+      completed: false
     };
     
     // BUG: This will cause type error
     setTasks([...tasks, task]);
-    setNewTask({ title: '', description: '', priority: 'medium', dueDate: '', assignedTo: 'John Doe', isUrgent: 'yes' });
+    setNewTask({ title: '', description: '', priority: 'medium', dueDate: '', assignedTo: '', isUrgent: false });
   };
 
   const toggleTaskComplete = (taskId: number) => {
@@ -320,10 +310,8 @@ function App() {
         </span>
       </td>
       <td>{customer.lastContact}</td>
-      {/* BUG: This will cause error - age is number but displaying as string */}
       <td>{customer.age}</td>
-      {/* BUG: This will cause error - notes might be undefined */}
-      <td>{customer.notes.toUpperCase()}</td>
+      <td>{customer.notes?.toUpperCase() || 'N/A'}</td>
       <td>
         <button 
           className="btn btn-sm btn-primary"
@@ -349,28 +337,22 @@ function App() {
   );
 
   const filteredCustomers = customers.filter(customer => {
-    // BUG: This will cause error if searchTerm is undefined
     const searchLower = searchTerm.toLowerCase();
     
-    // BUG: This will cause error if customer.name is undefined
     const nameMatch = customer.name.toLowerCase().includes(searchLower);
     const emailMatch = customer.email.toLowerCase().includes(searchLower);
     
-    // BUG: This will cause error if customer.notes is undefined
     const notesMatch = customer.notes && customer.notes.toLowerCase().includes(searchLower);
     
     return nameMatch || emailMatch || notesMatch;
   });
 
   const filteredTasks = tasks.filter(task => {
-    // BUG: This will cause error if searchTerm is undefined
     const searchLower = searchTerm.toLowerCase();
     
-    // BUG: This will cause error if task.title is undefined
     const titleMatch = task.title.toLowerCase().includes(searchLower);
     const descMatch = task.description.toLowerCase().includes(searchLower);
     
-    // BUG: This will cause error - assignedTo is Customer object, not string
     const assignedMatch = task.assignedTo && task.assignedTo.toLowerCase().includes(searchLower);
     
     return titleMatch || descMatch || assignedMatch;
@@ -442,13 +424,20 @@ function App() {
                 onChange={(e) => setNewCustomer({...newCustomer, name: e.target.value})}
                 required
               />
-              {/* BUG: This will cause error - age field is missing from newCustomer */}
-              <input
+                      <input
                 type="number"
                 placeholder="Age"
                 value={newCustomer.age}
-                onChange={(e) => setNewCustomer({...newCustomer, age: e.target.value})}
+                onChange={(e) => setNewCustomer({...newCustomer, age: parseInt(e.target.value) || 0})}
                 required
+              />
+            </div>
+            <div className="form-group">
+              <input
+                type="text"
+                placeholder="Notes"
+                value={newCustomer.notes}
+                onChange={(e) => setNewCustomer({...newCustomer, notes: e.target.value})}
               />
             </div>
             <div className="form-group">
@@ -522,7 +511,6 @@ function App() {
                 onChange={(e) => setNewTask({...newTask, title: e.target.value})}
                 required
               />
-              {/* BUG: This will cause error - assignedTo field has wrong type */}
               <input
                 type="text"
                 placeholder="Assigned To"
@@ -530,13 +518,12 @@ function App() {
                 onChange={(e) => setNewTask({...newTask, assignedTo: e.target.value})}
                 required
               />
-              {/* BUG: This will cause error - isUrgent field has wrong type */}
               <select
-                value={newTask.isUrgent}
-                onChange={(e) => setNewTask({...newTask, isUrgent: e.target.value})}
+                value={newTask.isUrgent ? 'yes' : 'no'}
+                onChange={(e) => setNewTask({...newTask, isUrgent: e.target.value === 'yes'})}
               >
-                <option value="yes">Yes</option>
                 <option value="no">No</option>
+                <option value="yes">Yes</option>
               </select>
             </div>
             <div className="form-group">
@@ -581,9 +568,7 @@ function App() {
                       {task.priority}
                     </span>
                     <span className="due-date">Due: {task.dueDate}</span>
-                    {/* BUG: This will cause error - assignedTo is Customer object, not string */}
                     <span className="assigned-to">Assigned to: {task.assignedTo}</span>
-                    {/* BUG: This will cause error - isUrgent is string, not boolean */}
                     <span className="urgent">Urgent: {task.isUrgent ? 'Yes' : 'No'}</span>
                   </div>
                 </div>
