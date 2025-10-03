@@ -49,22 +49,21 @@ function App() {
   const [error, setError] = useState('');
   const [loadingProgress, setLoadingProgress] = useState(0);
 
-  // Load sample data with 6-second delay to show loading issue
+  // Load sample data with minimal delay
   useEffect(() => {
     setLoading(true);
     setLoadingProgress(0);
     
-    // BUG: 6-second delay that will be visible in replay
-    // Simulate progress updates
+    // Simulate progress updates quickly
     const progressInterval = setInterval(() => {
       setLoadingProgress(prev => {
         if (prev >= 90) {
           clearInterval(progressInterval);
           return prev;
         }
-        return prev + 15;
+        return prev + 30;
       });
-    }, 1000);
+    }, 100);
     
     setTimeout(() => {
       setCustomers([
@@ -136,19 +135,12 @@ function App() {
       setLoadingProgress(100);
       setShowData(true);
       setLoading(false);
-      
-      // BUG: This will cause memory leak - no cleanup
-      setTimeout(() => {
-        setLoading(true);
-      }, 1000);
-    }, 6000); // 6-second delay - very visible in replay
+    }, 300);
     
-    // BUG: This will cause infinite re-renders
     return () => {
       clearInterval(progressInterval);
-      setLoading(false);
     };
-  }, []); // BUG: Missing dependency array items
+  }, []);
 
   const handleCustomerSubmit = (e: React.FormEvent) => {
     e.preventDefault();
