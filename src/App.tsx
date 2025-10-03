@@ -31,7 +31,7 @@ function App() {
     email: '',
     phone: '',
     status: 'pending' as const,
-    age: 0,
+    age: '',
     notes: ''
   });
   const [newTask, setNewTask] = useState({
@@ -159,11 +159,12 @@ function App() {
       const customer: Customer = {
         id: nextId,
         ...newCustomer,
+        age: parseInt(newCustomer.age) || 0,
         lastContact: new Date().toISOString().split('T')[0]
       };
       
       setCustomers(prevCustomers => [...prevCustomers, customer]);
-      setNewCustomer({ name: '', email: '', phone: '', status: 'pending', age: 0, notes: '' });
+      setNewCustomer({ name: '', email: '', phone: '', status: 'pending', age: '', notes: '' });
       setError('');
     } catch (err) {
       setError('Error: Failed to add customer. Please try again.');
@@ -416,10 +417,10 @@ function App() {
                 required
               />
                       <input
-                type="number"
+                type="text"
                 placeholder="Age"
                 value={newCustomer.age}
-                onChange={(e) => setNewCustomer({...newCustomer, age: parseInt(e.target.value) || 0})}
+                onChange={(e) => setNewCustomer({...newCustomer, age: e.target.value})}
                 required
               />
             </div>
