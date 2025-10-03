@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 
 interface Customer {
@@ -48,9 +48,13 @@ function App() {
   const [showData, setShowData] = useState(false);
   const [error, setError] = useState('');
   const [loadingProgress, setLoadingProgress] = useState(0);
+  const hasLoadedRef = useRef(false);
 
   // Load sample data with 6-second delay to show loading issue
   useEffect(() => {
+    if (hasLoadedRef.current) return;
+    hasLoadedRef.current = true;
+    
     setLoading(true);
     setLoadingProgress(0);
     
@@ -66,7 +70,7 @@ function App() {
       });
     }, 1000);
     
-    setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       setCustomers([
         {
           id: 1,
@@ -136,19 +140,13 @@ function App() {
       setLoadingProgress(100);
       setShowData(true);
       setLoading(false);
-      
-      // BUG: This will cause memory leak - no cleanup
-      setTimeout(() => {
-        setLoading(true);
-      }, 1000);
     }, 6000); // 6-second delay - very visible in replay
     
-    // BUG: This will cause infinite re-renders
     return () => {
       clearInterval(progressInterval);
-      setLoading(false);
+      clearTimeout(timeoutId);
     };
-  }, []); // BUG: Missing dependency array items
+  }, []);
 
   const handleCustomerSubmit = (e: React.FormEvent) => {
     e.preventDefault();
