@@ -136,19 +136,12 @@ function App() {
       setLoadingProgress(100);
       setShowData(true);
       setLoading(false);
-      
-      // BUG: This will cause memory leak - no cleanup
-      setTimeout(() => {
-        setLoading(true);
-      }, 1000);
     }, 6000); // 6-second delay - very visible in replay
     
-    // BUG: This will cause infinite re-renders
     return () => {
       clearInterval(progressInterval);
-      setLoading(false);
     };
-  }, []); // BUG: Missing dependency array items
+  }, []);
 
   const handleCustomerSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -403,7 +396,7 @@ function App() {
           type="text"
           placeholder="Search..."
           value={searchTerm}
-          onChange={(e) => handleSearch(e.target.value)}
+          onChange={(e) => setSearchTerm(e.target.value)}
           className="search-input"
         />
       </div>
