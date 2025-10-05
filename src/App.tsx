@@ -49,12 +49,11 @@ function App() {
   const [error, setError] = useState('');
   const [loadingProgress, setLoadingProgress] = useState(0);
 
-  // Load sample data with 6-second delay to show loading issue
+  // Load sample data with minimal delay
   useEffect(() => {
     setLoading(true);
     setLoadingProgress(0);
     
-    // BUG: 6-second delay that will be visible in replay
     // Simulate progress updates
     const progressInterval = setInterval(() => {
       setLoadingProgress(prev => {
@@ -64,7 +63,7 @@ function App() {
         }
         return prev + 15;
       });
-    }, 1000);
+    }, 50);
     
     setTimeout(() => {
       setCustomers([
@@ -141,7 +140,7 @@ function App() {
       setTimeout(() => {
         setLoading(true);
       }, 1000);
-    }, 6000); // 6-second delay - very visible in replay
+    }, 100);
     
     // BUG: This will cause infinite re-renders
     return () => {
