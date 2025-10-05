@@ -422,7 +422,7 @@ function App() {
                 onChange={(e) => setNewCustomer({...newCustomer, name: e.target.value})}
                 required
               />
-                      <input
+              <input
                 type="number"
                 placeholder="Age"
                 value={newCustomer.age}
@@ -440,7 +440,7 @@ function App() {
             </div>
             <div className="form-group">
               <input
-                type="email"
+                type="text"
                 placeholder="Email"
                 value={newCustomer.email}
                 onChange={(e) => setNewCustomer({...newCustomer, email: e.target.value})}
@@ -449,7 +449,7 @@ function App() {
             </div>
             <div className="form-group">
               <input
-                type="tel"
+                type="text"
                 placeholder="Phone"
                 value={newCustomer.phone}
                 onChange={(e) => setNewCustomer({...newCustomer, phone: e.target.value})}
