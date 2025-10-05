@@ -153,31 +153,29 @@ function App() {
   const handleCustomerSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // BUG: This will cause infinite re-renders
-    setError('Error: Failed to add customer. Please try again.');
-    
-    // BUG: This will cause memory leak - no cleanup
-    setTimeout(() => {
-      setError('');
-    }, 3000);
-    
-    // BUG: This will crash if customers array is empty
-    const nextId = Math.max(...customers.map(c => c.id)) + 1;
-    
-    const customer: Customer = {
-      id: nextId,
-      ...newCustomer,
-      lastContact: new Date().toISOString().split('T')[0]
-    };
-    
-    // BUG: This will cause state update on unmounted component
-    setCustomers([...customers, customer]);
-    setNewCustomer({ name: '', email: '', phone: '', status: 'pending', age: 0, notes: '' });
-    
-    // BUG: This will cause infinite loop
-    setTimeout(() => {
+    try {
+      // Validate required fields
+      if (!newCustomer.name || !newCustomer.email || !newCustomer.phone) {
+        setError('Error: Please fill in all required fields.');
+        setTimeout(() => setError(''), 3000);
+        return;
+      }
+      
+      const nextId = customers.length > 0 ? Math.max(...customers.map(c => c.id)) + 1 : 1;
+      
+      const customer: Customer = {
+        id: nextId,
+        ...newCustomer,
+        lastContact: new Date().toISOString().split('T')[0]
+      };
+      
       setCustomers([...customers, customer]);
-    }, 1000);
+      setNewCustomer({ name: '', email: '', phone: '', status: 'pending', age: 0, notes: '' });
+      setError('');
+    } catch (err) {
+      setError('Error: Failed to add customer. Please try again.');
+      setTimeout(() => setError(''), 3000);
+    }
   };
 
   // BUG 2: This function updates wrong state
