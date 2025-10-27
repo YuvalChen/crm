@@ -49,12 +49,11 @@ function App() {
   const [error, setError] = useState('');
   const [loadingProgress, setLoadingProgress] = useState(0);
 
-  // Load sample data with 6-second delay to show loading issue
+  // Load sample data with reduced delay
   useEffect(() => {
     setLoading(true);
     setLoadingProgress(0);
     
-    // BUG: 6-second delay that will be visible in replay
     // Simulate progress updates
     const progressInterval = setInterval(() => {
       setLoadingProgress(prev => {
@@ -62,9 +61,9 @@ function App() {
           clearInterval(progressInterval);
           return prev;
         }
-        return prev + 15;
+        return prev + 30;
       });
-    }, 1000);
+    }, 300);
     
     setTimeout(() => {
       setCustomers([
@@ -136,19 +135,13 @@ function App() {
       setLoadingProgress(100);
       setShowData(true);
       setLoading(false);
-      
-      // BUG: This will cause memory leak - no cleanup
-      setTimeout(() => {
-        setLoading(true);
-      }, 1000);
-    }, 6000); // 6-second delay - very visible in replay
+      clearInterval(progressInterval);
+    }, 1000);
     
-    // BUG: This will cause infinite re-renders
     return () => {
       clearInterval(progressInterval);
-      setLoading(false);
     };
-  }, []); // BUG: Missing dependency array items
+  }, []);
 
   const handleCustomerSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -178,12 +171,10 @@ function App() {
     }
   };
 
-  // BUG 2: This function updates wrong state
   const handleTaskSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // BUG: This will crash if tasks array is empty
-    const nextId = Math.max(...tasks.map(t => t.id)) + 1;
+    const nextId = tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1;
     
     const task: Task = {
       id: nextId,
@@ -191,110 +182,51 @@ function App() {
       completed: false
     };
     
-    // BUG: This will cause type error
     setTasks([...tasks, task]);
     setNewTask({ title: '', description: '', priority: 'medium', dueDate: '', assignedTo: '', isUrgent: false });
   };
 
   const toggleTaskComplete = (taskId: number) => {
-    // BUG: This will cause infinite re-renders
     setTasks(tasks.map(task => 
       task.id === taskId 
         ? { ...task, completed: !task.completed }
         : task
     ));
-    
-    // BUG: This will cause memory leak and infinite loop
-    setTimeout(() => {
-      setTasks(tasks.map(task => 
-        task.id === taskId 
-          ? { ...task, completed: !task.completed }
-          : task
-      ));
-    }, 1000);
-    
-    // BUG: This will cause error - tasks is not defined in this scope
-    console.log('Task toggled:', tasks.find(t => t.id === taskId));
   };
 
   const handleSearch = (term: string) => {
     setSearchTerm(term);
-    
-    // BUG: This will cause memory leak - creates new array on every keystroke
-    const expensiveFilter = customers.filter(customer => {
-      // BUG: This will cause performance issues
-      for (let i = 0; i < 10000; i++) {
-        Math.random();
-      }
-      return customer.name.toLowerCase().includes(term.toLowerCase());
-    });
-    
-    // BUG: This will cause infinite re-renders
-    setCustomers(expensiveFilter);
-    
-    // BUG: This will cause error - term might be undefined
-    console.log('Searching for:', term.toUpperCase());
   };
 
   const handleButtonClick = (action: string) => {
     setLoading(true);
     setError('');
     
-    // BUG: This will throw error if action is undefined
     console.log(`Performing action: ${action.toUpperCase()}`);
     
-    // BUG: This will cause infinite re-render loop
     setTimeout(() => {
-      setLoading(false);
-      setLoading(true); // BUG: This causes infinite loop
-      
       if (action === 'deleteAll') {
-        // BUG: This will throw error - customers is not defined in this scope
         setCustomers([]);
         setTasks([]);
       }
       
-      // BUG: This will cause error - action might be undefined
       if (action === 'export') {
-        throw new Error('Export failed - permission denied');
+        setError('Export functionality coming soon!');
       }
       
       setLoading(false);
-    }, 2000);
+    }, 1000);
   };
 
   const handleDeleteCustomer = (customerId: number) => {
-    // BUG: This will cause error - customers is not defined in this scope
     setCustomers(customers.filter(c => c.id !== customerId));
-    
-    // BUG: This will cause infinite re-renders
-    setTimeout(() => {
-      setCustomers(customers.filter(c => c.id !== customerId));
-    }, 1000);
-    
-    // BUG: This will cause error - customerId might be undefined
-    console.log('Deleting customer:', customerId.toString());
   };
 
   const handleEditCustomer = (customerId: number) => {
-    // BUG: This will cause infinite re-renders
-    setCustomers(customers.map(c => 
-      c.id === customerId 
-        ? { ...c, name: c.name + ' (edited)' }
-        : c
-    ));
-    
-    // BUG: This will cause memory leak and infinite loop
-    setTimeout(() => {
-      setCustomers(customers.map(c => 
-        c.id === customerId 
-          ? { ...c, name: c.name.replace(' (edited)', '') }
-          : c
-      ));
-    }, 500);
-    
-    // BUG: This will cause error - customerId might be undefined
-    console.log('Editing customer:', customerId.toString());
+    const customer = customers.find(c => c.id === customerId);
+    if (customer) {
+      console.log('Editing customer:', customer.name);
+    }
   };
 
   const renderCustomerRow = (customer: Customer) => (
@@ -309,7 +241,7 @@ function App() {
       </td>
       <td>{customer.lastContact}</td>
       <td>{customer.age}</td>
-      <td>{customer.notes?.toUpperCase() || 'N/A'}</td>
+      <td>{customer.notes || 'N/A'}</td>
       <td>
         <button 
           className="btn btn-sm btn-primary"
@@ -323,10 +255,9 @@ function App() {
         >
           Delete
         </button>
-        {/* BUG: This will cause error - customer.id might be undefined */}
         <button 
           className="btn btn-sm btn-secondary"
-          onClick={() => console.log('Customer details:', customer.id.toString())}
+          onClick={() => console.log('Customer details:', customer.id)}
         >
           Details
         </button>
@@ -480,14 +411,12 @@ function App() {
                   <th>Phone</th>
                   <th>Status</th>
                   <th>Last Contact</th>
-                  {/* BUG: Added columns that don't match the data */}
                   <th>Age</th>
                   <th>Notes</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {/* BUG: This will cause error - renderCustomerRow expects Customer but might get undefined */}
                 {filteredCustomers.map(customer => renderCustomerRow(customer))}
               </tbody>
             </table>
@@ -577,10 +506,9 @@ function App() {
                   >
                     {task.completed ? 'Completed' : 'Mark Complete'}
                   </button>
-                  {/* BUG: This will cause error - task.id might be undefined */}
                   <button
                     className="btn btn-sm btn-secondary"
-                    onClick={() => console.log('Task details:', task.id.toString())}
+                    onClick={() => console.log('Task details:', task.id)}
                   >
                     Details
                   </button>
