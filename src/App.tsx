@@ -155,7 +155,7 @@ function App() {
     
     try {
       // BUG: This will crash if customers array is empty
-      const nextId = Math.max(...customers.map(c => c.id)) + 1;
+      const nextId = customers.length > 0 ? Math.max(...customers.map(c => c.id)) + 1 : 1;
       
       const customer: Customer = {
         id: nextId,
@@ -163,14 +163,9 @@ function App() {
         lastContact: new Date().toISOString().split('T')[0]
       };
       
-      // BUG: This will cause state update on unmounted component
-      setCustomers([...customers, customer]);
+      // Fixed: Properly update state and clear form
+      setCustomers(prev => [...prev, customer]);
       setNewCustomer({ name: '', email: '', phone: '', status: 'pending', age: 0, notes: '' });
-      
-      // BUG: This will cause infinite loop
-      setTimeout(() => {
-        setCustomers([...customers, customer]);
-      }, 1000);
     } catch (err) {
       setError('Error: Failed to add customer. Please try again.');
       
