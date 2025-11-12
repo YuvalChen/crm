@@ -136,11 +136,6 @@ function App() {
       setLoadingProgress(100);
       setShowData(true);
       setLoading(false);
-      
-      // BUG: This will cause memory leak - no cleanup
-      setTimeout(() => {
-        setLoading(true);
-      }, 1000);
     }, 6000); // 6-second delay - very visible in replay
     
     // BUG: This will cause infinite re-renders
@@ -248,7 +243,6 @@ function App() {
     // BUG: This will cause infinite re-render loop
     setTimeout(() => {
       setLoading(false);
-      setLoading(true); // BUG: This causes infinite loop
       
       if (action === 'deleteAll') {
         // BUG: This will throw error - customers is not defined in this scope
@@ -260,8 +254,6 @@ function App() {
       if (action === 'export') {
         throw new Error('Export failed - permission denied');
       }
-      
-      setLoading(false);
     }, 2000);
   };
 
