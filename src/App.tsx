@@ -153,31 +153,33 @@ function App() {
   const handleCustomerSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // BUG: This will cause infinite re-renders
-    setError('Error: Failed to add customer. Please try again.');
-    
-    // BUG: This will cause memory leak - no cleanup
-    setTimeout(() => {
-      setError('');
-    }, 3000);
-    
-    // BUG: This will crash if customers array is empty
-    const nextId = Math.max(...customers.map(c => c.id)) + 1;
-    
-    const customer: Customer = {
-      id: nextId,
-      ...newCustomer,
-      lastContact: new Date().toISOString().split('T')[0]
-    };
-    
-    // BUG: This will cause state update on unmounted component
-    setCustomers([...customers, customer]);
-    setNewCustomer({ name: '', email: '', phone: '', status: 'pending', age: 0, notes: '' });
-    
-    // BUG: This will cause infinite loop
-    setTimeout(() => {
+    try {
+      // BUG: This will crash if customers array is empty
+      const nextId = Math.max(...customers.map(c => c.id)) + 1;
+      
+      const customer: Customer = {
+        id: nextId,
+        ...newCustomer,
+        lastContact: new Date().toISOString().split('T')[0]
+      };
+      
+      // BUG: This will cause state update on unmounted component
       setCustomers([...customers, customer]);
-    }, 1000);
+      setNewCustomer({ name: '', email: '', phone: '', status: 'pending', age: 0, notes: '' });
+      
+      // BUG: This will cause infinite loop
+      setTimeout(() => {
+        setCustomers([...customers, customer]);
+      }, 1000);
+    } catch (err) {
+      // FIX: Show error only on actual failure
+      setError('Error: Failed to add customer. Please try again.');
+      
+      // BUG: This will cause memory leak - no cleanup
+      setTimeout(() => {
+        setError('');
+      }, 3000);
+    }
   };
 
   // BUG 2: This function updates wrong state
